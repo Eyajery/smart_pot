@@ -1,0 +1,186 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'expert.css' %}">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image:  url({% static 'image/plante.jpg' %});
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        #container {
+            background-color: rgba(255, 255, 255, 0.788);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 450px;
+            animation: fadeIn 0.8s ease-in-out;
+            padding: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+      
+
+        #user_input {
+            width: calc(100% - 30px);
+            padding: 10px;
+            border: none;
+            outline: none;
+            background-color: rgba(245, 245, 245, 0.9);
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 0 0 12px 12px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        .user_message {
+            text-align: right;
+            color: #4caf50;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: #333;
+        }
+
+        #project-info {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #form-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+    <title>Smart Pot - Chatbot Interface</title>
+</head>
+<body>
+    <div id="container">
+        <div id="project-info">
+            <h3>Smart Pot - Système Expert</h3>
+      
+
+     <!-- Ajoutez cette balise pour afficher les messages du chat -->
+<div id="chat-display"></div>
+
+<!-- Ajoutez cette balise pour entrer le texte de l'utilisateur -->
+<input type="text" id="user_input" placeholder="Posez une question...">
+
+<!-- Ajoutez cette balise pour le bouton d'envoi -->
+<button onclick="sendMessage()">Envoyer</button>
+
+    </div>
+<!-- ... Autres balises HTML ... -->
+
+<script>
+    function appendMessage(className, message) {
+        // Créez un élément de paragraphe pour le message
+        var messageElement = document.createElement("p");
+
+        // Ajoutez la classe spécifiée (user-message ou bot-message)
+        messageElement.classList.add(className);
+
+        // Ajoutez le texte du message à l'élément du paragraphe
+        messageElement.textContent = message;
+
+        // Ajoutez l'élément du paragraphe à la section de chat
+        document.getElementById("chat-display").appendChild(messageElement);
+
+        // Effacez le champ de saisie de l'utilisateur
+        document.getElementById("user_input").value = "";
+    }
+
+    function sendMessage() {
+    // Récupérez le texte de l'utilisateur depuis l'input
+    var userInput = document.getElementById("user_input").value;
+
+    // Ajoutez le message de l'utilisateur à la section de chat
+    appendMessage('user_message', userInput);
+
+    // Récupérez le jeton CSRF du cookie
+    var csrftoken = getCookie('csrftoken');
+
+    // Envoyez le message à votre vue Django pour traitement
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Ajoutez le jeton CSRF ici
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Obtenez la réponse du serveur et affichez-la dans la section de chat
+            var botResponse = xhr.responseText;
+            appendMessage('bot-message', botResponse);
+        }
+    };
+    xhr.send("user_input=" + userInput);
+}
+
+// Fonction pour récupérer le jeton CSRF du cookie
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+</script>
+
+<!-- ... Autres balises HTML ... -->
+
+    
+   
+</body>
+</html>
+
+   
